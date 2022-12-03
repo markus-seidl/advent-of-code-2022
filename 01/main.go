@@ -9,6 +9,12 @@ import (
 
 const InputFile = "01/input.txt"
 
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
+
 func main() {
 	// Load file
 	inputBytes, err := os.ReadFile(InputFile)
@@ -59,10 +65,4 @@ func main() {
 		sumTopThree += elfCalories[i]
 	}
 	println("Sum Top Three", sumTopThree)
-}
-
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
 }
