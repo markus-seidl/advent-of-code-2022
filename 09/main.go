@@ -97,11 +97,16 @@ func main() {
 
 	lines := strings.Split(inputStr, "\n")
 
-	headPos := Pos{X: 0, Y: 0}
-	tailPos := Pos{X: 0, Y: 0}
+	const tailLength = 9
 
-	//PrintMap(6, 6, headPos, tailPos, make([]Pos, 0))
-	//println("------------")
+	headPos := Pos{X: 0, Y: 0}
+	var tailPoss []Pos
+	for i := 0; i < tailLength; i++ {
+		tailPoss = append(tailPoss, Pos{X: 0, Y: 0})
+	}
+
+	PrintMap(6, 6, headPos, tailPoss, make([]Pos, 0))
+	println("------------")
 
 	var tailVisited []Pos
 	for _, line := range lines {
@@ -124,11 +129,15 @@ func main() {
 		}
 
 		for t := 0; t < size; t++ {
-			headPos.Move(dirV, &tailPos)
-			tailVisited = append(tailVisited, tailPos)
+			headPos.Move(dirV, &tailPoss[len(tailPoss)-1])
+			for i := 1; i < len(tailPoss); i++ {
+				tailPoss[i-1].Move(Pos{X: 0, Y: 0}, &tailPoss[i])
+			}
 
-			//PrintMap(6, 6, headPos, tailPos, tailVisited)
-			//println("------------ ", headPos.X, headPos.Y)
+			//tailVisited = append(tailVisited, tailPos)
+
+			PrintMap(6, 6, headPos, tailPoss, tailVisited)
+			println("------------ ", headPos.X, headPos.Y)
 		}
 	}
 
@@ -142,65 +151,6 @@ func main() {
 	println("Visited = ", len(temp))
 }
 
-func MoveUpDown(headPos *Pos, tailPos *Pos, dir int) {
-	headBefore := *headPos
-	//diffBefore := ManhattanDistance(*headPos, *tailPos)
-	sameXBefore := headPos.X == tailPos.X
-	//sameYBefore := headPos.Y == tailPos.Y
-
-	// Move Head
-	headPos.Y += dir
-
-	diffAfter := ManhattanDistance(*headPos, *tailPos)
-	//sameXAfter := headPos.X == tailPos.X
-	sameYAfter := headPos.Y == tailPos.Y
-
-	if diffAfter == 0 {
-		// NOP
-	} else if diffAfter == 1 {
-		if sameYAfter {
-			tailPos.Y += dir
-		} else if sameXBefore {
-
-		}
-	} else if diffAfter == 2 {
-		tailPos.X = headBefore.X
-		tailPos.Y = headBefore.Y
-	} else {
-		panic("Error distAfter>2")
-	}
-}
-
-func MoveRightLeft(headPos *Pos, tailPos *Pos, dir int) {
-	headBefore := *headPos
-
-	//diffBefore := ManhattanDistance(*headPos, *tailPos)
-	//sameXBefore := headPos.X == tailPos.X
-	//sameYBefore := headPos.Y == tailPos.Y
-
-	// Move Head
-	headPos.X += dir
-
-	diffAfter := ManhattanDistance(*headPos, *tailPos)
-	sameXAfter := headPos.X == tailPos.X
-	sameYAfter := headPos.Y == tailPos.Y
-
-	if diffAfter == 0 {
-		// NOP
-	} else if diffAfter == 1 {
-		if sameYAfter {
-			tailPos.X += dir
-		} else if sameXAfter {
-
-		}
-	} else if diffAfter == 2 {
-		tailPos.X = headBefore.X
-		tailPos.Y = headBefore.Y
-	} else {
-		panic("Error")
-	}
-}
-
 func ManhattanDistance(pos1 Pos, pos2 Pos) int {
 	return absDiffInt(pos1.X, pos2.X) + absDiffInt(pos1.Y, pos2.Y)
 }
@@ -212,16 +162,27 @@ func absDiffInt(x, y int) int {
 	return x - y
 }
 
-func PrintMap(maxX int, maxY int, head Pos, tail Pos, tailVisited []Pos) {
+func PrintMap(maxX int, maxY int, head Pos, tails []Pos, tailVisited []Pos) {
 	for y := maxY - 1; y >= 0; y-- {
 		for x := 0; x < maxX; x++ {
-			if head.IsPos(x, y) && tail.IsPos(x, y) {
-				print("h")
-			} else if head.IsPos(x, y) {
-				print("H")
-			} else if tail.IsPos(x, y) {
-				print("T")
-			} else {
+			alreadySet := false
+			for i, tail := range tails {
+				if head.IsPos(x, y) && tail.IsPos(x, y) {
+					print("h")
+					alreadySet = true
+					break
+				} else if head.IsPos(x, y) {
+					print("H")
+					alreadySet = true
+					break
+				} else if tail.IsPos(x, y) {
+					print(strconv.Itoa(i))
+					alreadySet = true
+					break
+				}
+			}
+
+			if !alreadySet {
 				visited := false
 				for _, p := range tailVisited {
 					if p.X == x && p.Y == y {
@@ -235,9 +196,7 @@ func PrintMap(maxX int, maxY int, head Pos, tail Pos, tailVisited []Pos) {
 				} else {
 					print(".")
 				}
-
 			}
-
 		}
 		println()
 	}
