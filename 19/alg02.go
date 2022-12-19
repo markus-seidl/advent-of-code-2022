@@ -31,7 +31,7 @@ func Evaluate02(b Blueprint) int {
 	}
 	queue.Push(start)
 
-	seenStates := make(map[State02]bool)
+	seenStates := make(map[State02]bool, 100_000_000)
 
 	maxGeodes := -1
 	var maxState State02
@@ -52,10 +52,22 @@ func Evaluate02(b Blueprint) int {
 		if state.time < 6 && state.geode == 0 {
 			continue // not worth searching further
 		}
+
+		// can we beat the best (maxGeodes) still?
+		if state.time < 20 && state.geodeRobots > 0 {
+			bestGuessAtMax := state.time*(state.geodeRobots+10) + state.geode
+			if bestGuessAtMax < maxGeodes {
+				continue // not possible
+			}
+		}
+
 		if _, ok := seenStates[state]; ok {
 			continue // we have seen the same time and ore constellation already
 		}
-		//seenStates[state] = true
+		if len(seenStates) > 100_000_000 {
+			seenStates = make(map[State02]bool, 100_000_000)
+		}
+		seenStates[state] = true
 
 		if state.ore >= b.GeodeRobot[0] && state.obsidian >= b.GeodeRobot[1] {
 			stateG := state
