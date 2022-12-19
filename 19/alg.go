@@ -1,6 +1,6 @@
 package main
 
-type StateAlg struct {
+type State01 struct {
 	oreRobots      int
 	clayRobots     int
 	obsidianRobots int
@@ -17,57 +17,57 @@ type StateAlg struct {
 	newGeodeRobot    bool
 }
 
-func Evaluate(b Blueprint) int {
-	start := StateAlg{
+func Evaluate01(b Blueprint) int {
+	start := State01{
 		oreRobots: 1,
 	}
 
 	firstGeodeStep := -1 // first step a geode is encountered
-	bestEndState := EvaluateStep(b, start, SimulationLength, &firstGeodeStep)
+	bestEndState := EvaluateStep01(b, start, SimulationLength, &firstGeodeStep)
 	return bestEndState.geode
 }
 
-func EvaluateStep(b Blueprint, state StateAlg, step int, firstGeodeStep *int) StateAlg {
+func EvaluateStep01(b Blueprint, state State01, step int, firstGeodeStep *int) State01 {
 	if step <= 0 {
 		return state
 	}
 
 	// 5 Options for each step: build O, C, OB, G robot  and NOTHING
-	var rstateO, rstateC, rstateOB, rstateG, rstateNothing StateAlg
+	var rstateO, rstateC, rstateOB, rstateG, rstateNothing State01
 
 	if state.ore >= b.GeodeRobot[0] && state.obsidian >= b.GeodeRobot[1] {
 		stateG := state
 		stateG.newGeodeRobot = true
-		updateState(&stateG, b)
-		rstateG = EvaluateStep(b, stateG, step-1, firstGeodeStep)
+		updateState01(&stateG, b)
+		rstateG = EvaluateStep01(b, stateG, step-1, firstGeodeStep)
 	} else {
 		if state.ore >= b.ObsidianRobot[0] && state.clay >= b.ObsidianRobot[1] {
 			stateOB := state
 			stateOB.newObsidianRobot = true
-			updateState(&stateOB, b)
-			rstateOB = EvaluateStep(b, stateOB, step-1, firstGeodeStep)
+			updateState01(&stateOB, b)
+			rstateOB = EvaluateStep01(b, stateOB, step-1, firstGeodeStep)
 		}
 		if state.ore >= b.ClayRobot && state.clayRobots <= b.ObsidianRobot[1] {
 			stateC := state
 			stateC.newClayRobot = true
-			updateState(&stateC, b)
-			rstateC = EvaluateStep(b, stateC, step-1, firstGeodeStep)
+			updateState01(&stateC, b)
+			rstateC = EvaluateStep01(b, stateC, step-1, firstGeodeStep)
 		}
 		if state.ore >= b.OreRobot && state.oreRobots <= b.maxOreNeededForAnyRobot {
 			stateO := state
 			stateO.newOreRobot = true
-			updateState(&stateO, b)
-			rstateO = EvaluateStep(b, stateO, step-1, firstGeodeStep)
+			updateState01(&stateO, b)
+			rstateO = EvaluateStep01(b, stateO, step-1, firstGeodeStep)
 		}
 	}
 
 	stateNothing := state
-	updateState(&stateNothing, b)
-	rstateNothing = EvaluateStep(b, stateNothing, step-1, firstGeodeStep)
+	updateState01(&stateNothing, b)
+	rstateNothing = EvaluateStep01(b, stateNothing, step-1, firstGeodeStep)
 
-	states := []StateAlg{rstateO, rstateC, rstateOB, rstateG, rstateNothing}
+	states := []State01{rstateO, rstateC, rstateOB, rstateG, rstateNothing}
 	maxGeodes := 0
-	var retstate StateAlg
+	var retstate State01
 	for _, state := range states {
 		if state.geode > maxGeodes {
 			retstate = state
@@ -78,7 +78,7 @@ func EvaluateStep(b Blueprint, state StateAlg, step int, firstGeodeStep *int) St
 	return retstate
 }
 
-func updateState(s *StateAlg, b Blueprint) {
+func updateState01(s *State01, b Blueprint) {
 	if s.newGeodeRobot {
 		s.ore -= b.GeodeRobot[0]
 		s.obsidian -= b.GeodeRobot[1]

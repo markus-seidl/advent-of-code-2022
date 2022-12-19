@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-const InputFile = "19/input.txt"
-const SimulationLength = 24
+const InputFile = "19/example.txt"
+const SimulationLength = 32
 
 func check(e error) {
 	if e != nil {
@@ -72,11 +72,11 @@ func main() {
 
 	for _, b := range blueprints {
 		temp := b
-		go func() {
-			maxGeodes := Evaluate(temp)
-			println("Blueprint", temp.No, " Geodes:", maxGeodes, "Quality:", temp.No*maxGeodes)
-			waitChannel <- temp.No * maxGeodes
-		}()
+		//go func() {
+		maxGeodes := Evaluate02(temp)
+		println("Blueprint", temp.No, " Geodes:", maxGeodes, "Quality:", temp.No*maxGeodes)
+		//  waitChannel <- temp.No * maxGeodes
+		//}()
 	}
 
 	sum := 0
