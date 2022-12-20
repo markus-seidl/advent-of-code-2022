@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-const InputFile = "20/input.txt"
+const InputFile = "20/example.txt"
 
 func check(e error) {
 	if e != nil {
@@ -47,7 +47,7 @@ func main() {
 	}
 	outputS := make([]*SortingPos, len(inputS))
 	copy(outputS, inputS)
-	//Print(inputS)
+	Print(inputS)
 
 	for _, orig := range inputS {
 
@@ -60,14 +60,14 @@ func main() {
 			}
 		}
 
-		//println(orig.Number, " moved: ")
+		println(orig.Number, " moved: ")
 
 		Move(&outputS, curIdx, outputS[curIdx].Number)
-		//Print(outputS)
+		Print(outputS)
 	}
 
 	println("Result: ")
-	//Print(outputS)
+	Print(outputS)
 
 	println()
 	whereIsZero := 0
@@ -98,9 +98,6 @@ func Move(arr *[]*SortingPos, pos int, delta int) {
 	if pos == newPos {
 		return // NoOP
 	}
-	if newPos > pos {
-		newPos = ModInRange(newPos+1, len(*arr))
-	}
 
 	no := (*arr)[pos]
 
@@ -124,9 +121,9 @@ func Move(arr *[]*SortingPos, pos int, delta int) {
 }
 
 func ModInRange(a int, m int) int {
-	ret := a % m
+	ret := a % (m - 1)
 	if ret <= 0 {
-		ret += m - 1
+		ret += (m - 1)
 	}
 	return ret
 }
