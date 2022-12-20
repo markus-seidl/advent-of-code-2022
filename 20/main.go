@@ -94,6 +94,10 @@ func Print(s []*SortingPos) {
 }
 
 func Move(arr *[]*SortingPos, pos int, delta int) {
+	if delta > 0 {
+		delta++
+	}
+
 	newPos := ModInRange(pos+delta, len(*arr))
 	if pos == newPos {
 		return // NoOP
@@ -123,7 +127,7 @@ func Move(arr *[]*SortingPos, pos int, delta int) {
 func ModInRange(a int, m int) int {
 	ret := a % (m - 1)
 	if ret <= 0 {
-		ret += (m - 1)
+		ret += m
 	}
 	return ret
 }
