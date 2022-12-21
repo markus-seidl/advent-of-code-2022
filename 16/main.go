@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -61,35 +60,37 @@ func main() {
 	println()
 	println()
 
-	currentValve := m.ValveMap["AA"]
-	for move := 1; move <= 30; move++ {
-		println("== Minute ", move, " ==")
-		m.PrintStatus()
-		println("Current Valve: ", currentValve.Name)
+	Evaluate02(m, 30)
 
-		// Plan next move
-		if currentValve.FlowRate > 0 {
-			println("You open", currentValve.Name, "for", currentValve.FlowRate)
-			currentValve.Open = true
-		}
-		candidates := m.CandidateValves(currentValve)
-		//candidates = Filter(candidates, 3)
-		sort.Slice(candidates, func(i, j int) bool {
-			return candidates[i].Path[1].FlowRate > candidates[j].Path[1].FlowRate
-		})
-		println("\tCandidates:")
-		for _, c := range candidates {
-			println("\t\t", c.String())
-		}
-
-		nextValve := candidates[0].Path[1]
-		println("You move to", nextValve.Name)
-		currentValve = nextValve
-
-		// /Plan next move
-
-		println()
-	}
+	//currentValve := m.ValveMap["AA"]
+	//for move := 1; move <= 30; move++ {
+	//  println("== Minute ", move, " ==")
+	//  m.PrintStatus()
+	//  println("Current StepPosition: ", currentValve.Name)
+	//
+	//  // Plan next move
+	//  if currentValve.FlowRate > 0 {
+	//    println("You open", currentValve.Name, "for", currentValve.FlowRate)
+	//    currentValve.Open = true
+	//  }
+	//  candidates := m.CandidateValves(currentValve)
+	//  //candidates = Filter(candidates, 3)
+	//  sort.Slice(candidates, func(i, j int) bool {
+	//    return candidates[i].Path[1].FlowRate > candidates[j].Path[1].FlowRate
+	//  })
+	//  println("\tCandidates:")
+	//  for _, c := range candidates {
+	//    println("\t\t", c.String())
+	//  }
+	//
+	//  nextValve := candidates[0].Path[1]
+	//  println("You move to", nextValve.Name)
+	//  currentValve = nextValve
+	//
+	//  // /Plan next move
+	//
+	//  println()
+	//}
 
 	//
 }
