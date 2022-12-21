@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -60,6 +61,7 @@ func main() {
 	}
 
 	monkeys["root"].Operation = "-"
+	AlternateSortFind(monkeys)
 
 	lastResult := int64(1)
 	value := int64(1) // manually helping it to converge and not oscilate
@@ -81,6 +83,7 @@ func main() {
 		result := rootMonkey.NumberL
 		if result == 0 {
 			println("Found: ", value, result, change)
+			println("Took", i, "iterations")
 			return
 		}
 		if (result < 0 && lastResult > 0) || (result > 0 && lastResult < 0) {
@@ -108,6 +111,31 @@ func main() {
 	}
 
 	println("Result: ", monkeys["root"].NumberL)
+}
+
+func AlternateSortFind(monkeys map[string]*Expression) {
+	// need a large value that is producing the opposite sign from Evaluate(x, 0) for this to work
+	pos, found := sort.Find(int((1<<63)/2), func(val int) int {
+		temp := Evaluate(monkeys, val)
+		println("sort.Find = ", temp, "at", val)
+		return temp
+	})
+
+	println("sort.Find result = ", pos, found)
+}
+
+func Evaluate(monkeys map[string]*Expression, at int) int {
+	copyMonkeys := make(map[string]*Expression, len(monkeys))
+	for k, v := range monkeys {
+		copyExpression := *v
+		copyMonkeys[k] = &copyExpression
+	}
+
+	copyMonkeys["humn"].NumberL = int64(at)
+	calculateMonkeysFaster(copyMonkeys)
+
+	rootMonkey := copyMonkeys["root"]
+	return int(rootMonkey.NumberL)
 }
 
 func calculateMonkeysFaster(monkeys map[string]*Expression) {
