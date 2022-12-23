@@ -177,6 +177,10 @@ func (m *Map) AdvanceXPosition(p Pos, change int) int {
 		}
 	}
 
+	if m.Tile[newX][p.Y] == Nothing {
+		panic("Hit nothing!")
+	}
+
 	return newX
 }
 
@@ -218,6 +222,10 @@ func (m *Map) AdvanceYPosition(p Pos, change int) int {
 		}
 	}
 
+	if row[newY] == Nothing {
+		panic("Hit nothing!")
+	}
+
 	return newY
 }
 
@@ -236,10 +244,10 @@ func (m *Map) Rotate(dir string) {
 		m.Direction -= 1
 	}
 	if m.Direction > 3 {
-		m.Direction -= 3
+		m.Direction -= 4
 	}
 	if m.Direction < 0 {
-		m.Direction += 3
+		m.Direction += 4
 	}
 }
 
