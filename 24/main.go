@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-const InputFile = "24/example.txt"
+const InputFile = "24/input.txt"
 
 func check(e error) {
 	if e != nil {
@@ -71,7 +71,8 @@ func main() {
 	m.Print()
 	println()
 
-	m.CurrentPos = Pos{X: 0, Y: 1}
+	start := Pos{X: 0, Y: 1}
+	m.CurrentPos = start
 	if !m.CanBe(m.CurrentPos) {
 		panic("Invalid starting position")
 	}
@@ -83,9 +84,22 @@ func main() {
 		panic("Invalid goal position")
 	}
 
-	solution := Solve(m, goal)
+	walk01 := Solve(m, goal)
+	println("Part 1:", walk01.Moves)
 
-	solution.WorldMap.Print()
+	walk02 := Solve(Map{
+		Tiles:      walk01.WorldMap.Tiles,
+		CurrentPos: goal,
+	}, start)
+	println("Part 2 - walk02:", walk02.Moves)
+
+	walk03 := Solve(Map{
+		Tiles:      walk02.WorldMap.Tiles,
+		CurrentPos: start,
+	}, goal)
+	println("Part 2 - walk03:", walk03.Moves)
+
+	println("Part 2:", walk01.Moves+walk02.Moves+walk03.Moves)
 }
 
 func (m *Map) Print() {
@@ -181,10 +195,10 @@ func (m *Map) SimulateBlizzardsIntoNewMap() Map {
 	newTiles := make([][]Tile, len(m.Tiles))
 	for x, row := range m.Tiles {
 		newTiles[x] = make([]Tile, len(row))
-		copy(newTiles[x], row)
-
-		for _, tile := range row {
-			tile.Blizzards = nil // reset blizzards, will be filled in next loop
+		for y, tile := range row {
+			newTiles[x][y] = Tile{
+				IsWall: tile.IsWall,
+			}
 		}
 	}
 

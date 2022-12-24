@@ -4,34 +4,58 @@ type State struct {
 	Moves       int
 	WorldMap    Map
 	GoalReached bool
+	NoopMoves   int
+}
+
+type BlizzardState struct {
+	Tiles [][]Tile
+}
+
+type SolveStateCache struct {
+	Move int
+	Pos  Pos
 }
 
 func Solve(startingMap Map, goal Pos) State {
 	start := State{
-		Moves:    0,
-		WorldMap: startingMap,
+		Moves:     0,
+		WorldMap:  startingMap,
+		NoopMoves: 0,
 	}
 	queue := Queue[State]{
 		Lifo: true,
 	}
 	queue.Push(start)
 
-	dirs := []Pos{{X: 0, Y: 1}, {X: 0, Y: -1}, {X: 1, Y: 0}, {X: -1, Y: 0}, {X: 0, Y: 0}}
+	dirs := []Pos{{X: 0, Y: 0}, {X: -1, Y: 0}, {X: 0, Y: -1}, {X: 0, Y: 1}, {X: 1, Y: 0}}
 
-	minMoves := ManhattanDistance(startingMap.CurrentPos, goal) * 10
+	var blizzardStateCache = make(map[int]BlizzardState)
+	var solveStateCache = make(map[SolveStateCache]bool)
+	revisitMovePrevented := 0
+
+	startMinMoves := ManhattanDistance(startingMap.CurrentPos, goal) * 3
+	minMoves := startMinMoves
+	println("Manhattan Distance:", ManhattanDistance(startingMap.CurrentPos, goal))
 	var minState State
 
+	pruned := 0
 	i := 0
 	for queue.Size() > 0 {
 		state := queue.Pop()
-		if i%100_000 == 0 {
-			println("Queue size: ", queue.Size())
+		if i%10_000_000 == 0 {
+			print("Queue size: ", queue.Size(), " Cache Size:", len(blizzardStateCache), " Revisit:", revisitMovePrevented)
+			if queue.Size() > 0 {
+				first := queue.elements[0]
+				last := queue.elements[len(queue.elements)-1]
+				print(" First: ", first.Moves, "(", first.NoopMoves, ") Last: ", last.Moves, "(", last.NoopMoves, ")")
+			}
+			println()
 		}
 		i++
 
 		if state.GoalReached {
 			if state.Moves < minMoves {
-				println("Found new min moves: ", state.Moves)
+				println("Found new min moves: ", state.Moves, " (", state.NoopMoves, ")")
 				minState = state
 				minMoves = state.Moves
 			}
@@ -40,12 +64,21 @@ func Solve(startingMap Map, goal Pos) State {
 		}
 
 		if state.Moves > minMoves {
+			pruned++
 			continue // discard too long paths
 		}
-		//startupHelper := false //minMoves >= math.MaxInt64 // no min moves yet, so we discard seen positions to find at least one path
 
-		newMap := state.WorldMap.Copy()
-		newMap.SimulateBlizzards()
+		var newMap Map
+		if tileMap, ok := blizzardStateCache[state.Moves]; ok {
+			newMap = Map{
+				Tiles: tileMap.Tiles,
+			}
+		} else {
+			newMap = state.WorldMap.SimulateBlizzardsIntoNewMap()
+			blizzardStateCache[state.Moves] = BlizzardState{
+				Tiles: newMap.Tiles,
+			}
+		}
 
 		// decide where to go
 		for _, dir := range dirs {
@@ -54,12 +87,25 @@ func Solve(startingMap Map, goal Pos) State {
 				continue
 			}
 
-			nextStateMap := newMap.Copy()
-			nextStateMap.CurrentPos = newPos
+			stateCacheKey := SolveStateCache{Move: state.Moves + 1, Pos: newPos}
+			if solveStateCache[stateCacheKey] {
+				revisitMovePrevented++
+				continue
+			}
+			solveStateCache[stateCacheKey] = true
+
+			isNoopMove := 0
+			if dir.X == 0 && dir.Y == 0 {
+				isNoopMove = 1
+			}
 			nextState := State{
-				Moves:       state.Moves + 1,
-				WorldMap:    nextStateMap,
+				Moves: state.Moves + 1,
+				WorldMap: Map{
+					Tiles:      newMap.Tiles,
+					CurrentPos: newPos,
+				},
 				GoalReached: newPos == goal,
+				NoopMoves:   state.NoopMoves + isNoopMove,
 			}
 
 			queue.Push(nextState)
