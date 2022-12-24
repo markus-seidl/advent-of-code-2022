@@ -62,8 +62,9 @@ func main() {
 	m.Print()
 	println()
 
-	for i := 1; i <= 1000; i++ {
-		println("== Round ", i, " ==: Direction ", m.FirstDirection)
+	i := 1
+	for ; i <= 1000; i++ {
+		//println("== Round ", i, " ==: Direction ", m.FirstDirection)
 		elfMoved := m.Move()
 		//m.Print()
 
@@ -76,6 +77,7 @@ func main() {
 	m.Print()
 
 	println("Result: ", m.CountEmptyTiles())
+	println("Rounds:", i)
 }
 
 func (m *Map) Move() bool {

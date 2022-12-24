@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-const InputFile = "20/example.txt"
+const InputFile = "20/input.txt"
 
 func check(e error) {
 	if e != nil {
@@ -63,7 +63,7 @@ func main() {
 		println(orig.Number, " moved: ")
 
 		Move(&outputS, curIdx, outputS[curIdx].Number)
-		Print(outputS)
+		//Print(outputS)
 	}
 
 	println("Result: ")
@@ -126,8 +126,8 @@ func Move(arr *[]*SortingPos, pos int, delta int) {
 
 func ModInRange(a int, m int) int {
 	ret := a % (m - 1)
-	if ret <= 0 {
-		ret += m
+	if ret < 0 {
+		ret += m - 1
 	}
 	return ret
 }
